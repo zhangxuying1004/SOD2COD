@@ -47,9 +47,9 @@ def build_saliency_dataset(args):
     if not os.path.exists(args.dir_to_save_saliency):
         os.makedirs(args.dir_to_save_saliency)
     
-    start_idx = 19
+    start_idx, end_idx = 0, category_num
     # for category in cod10k_categories:
-    for cat_idx in range(start_idx, category_num):
+    for cat_idx in range(start_idx, end_idx):
         category = cod10k_categories[cat_idx]
         print('processing the {} category: {}'.format(cat_idx, category))
         # 指定类别的saliency文件夹
@@ -60,7 +60,7 @@ def build_saliency_dataset(args):
         imagenames = os.listdir(os.path.join(args.image_dir, category))
         with tqdm(total=len(imagenames)) as pbar:
             for imagename in imagenames:
-                if imagename[-3:] == 'png':
+                if imagename[-3:] == 'png': # png格式的图像为4通道
                     continue
                 img_path = os.path.join(args.image_dir, category, imagename)
                 try:
@@ -71,8 +71,6 @@ def build_saliency_dataset(args):
                 path_to_save_saliency = os.path.join(args.dir_to_save_saliency, category, imagename)
                 cv2.imwrite(path_to_save_saliency, saliency_map)
                 pbar.update()
-
-        cat_idx += 1
 
 
 if __name__ == '__main__':
@@ -88,3 +86,5 @@ if __name__ == '__main__':
 
     # test(args)
     build_saliency_dataset(args)
+    
+    
