@@ -41,15 +41,17 @@ def test(args):
 
 def build_saliency_dataset(args):
     cod10k_categories = os.listdir(args.image_dir)
-    # print(len(cod10k_categories))
-    # print(cod10k_categories)
+    category_num = len(cod10k_categories)
+    
 
     if not os.path.exists(args.dir_to_save_saliency):
         os.makedirs(args.dir_to_save_saliency)
     
-    cat_idx = 1
-    for category in cod10k_categories:
-        print('processing the {}: {}'.format(cat_idx, category))
+    start_idx = 19
+    # for category in cod10k_categories:
+    for cat_idx in range(start_idx, category_num):
+        category = cod10k_categories[cat_idx]
+        print('processing the {} category: {}'.format(cat_idx, category))
         # 指定类别的saliency文件夹
         if not os.path.exists(os.path.join(args.dir_to_save_saliency, category)):
             os.makedirs(os.path.join(args.dir_to_save_saliency, category))
@@ -58,8 +60,14 @@ def build_saliency_dataset(args):
         imagenames = os.listdir(os.path.join(args.image_dir, category))
         with tqdm(total=len(imagenames)) as pbar:
             for imagename in imagenames:
+                if imagename[-3:] == 'png':
+                    continue
                 img_path = os.path.join(args.image_dir, category, imagename)
-                saliency_map = get_saliency_map(img_path, algo_name=args.algo_name, is_bin=args.is_bin, img_size=args.img_size)
+                try:
+                    saliency_map = get_saliency_map(img_path, algo_name=args.algo_name, is_bin=args.is_bin, img_size=args.img_size)
+                except Exception as e:
+                    print('{}: {}'.format(category, imagename))
+                    continue
                 path_to_save_saliency = os.path.join(args.dir_to_save_saliency, category, imagename)
                 cv2.imwrite(path_to_save_saliency, saliency_map)
                 pbar.update()
@@ -80,5 +88,3 @@ if __name__ == '__main__':
 
     # test(args)
     build_saliency_dataset(args)
-
-    
